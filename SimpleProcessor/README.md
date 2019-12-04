@@ -1,0 +1,2 @@
+# Objectives 
+In this lab the students were required to use the Xilinx design package for FPGAs to construct and implement a simple processor. The students needed to study the architecture of the processor in order to process a set a given instruction word formats with 16-bit word-length.  The students used an architecture diagram and a controller flow diagram in order to create the processor. The students also used the Von Neuman approach to design the processor as well as implementing machine language code to test the processor.
