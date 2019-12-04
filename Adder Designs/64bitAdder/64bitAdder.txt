@@ -1,0 +1,15 @@
+`timescale 1ns / 1ps
+
+// Behavioral model of 64-bit adder 
+module behavioral_adder(
+    input [0:63] a,
+    input [0:63] b,
+    output [0:63] C
+    );
+    
+// C is the sum of a and b
+    assign C = (a + b);
+    
+endmodule
+
+

@@ -1,0 +1,129 @@
+`timescale 1ns / 1ps
+
+// XOR gate Module with 2 inputs
+module xor_gate(
+    input a,
+    input b,
+    output C
+    );
+    
+    assign #1 C =(a^b);
+endmodule
+    
+// AND gate Module with 2 inputs
+module and_gate(
+     input a,
+     input b,
+     output C
+     );
+        
+     assign #1 C = a & b;   
+endmodule
+    
+// OR gate Module with 2 inputs
+module or_gate(
+     input a,
+     input b,
+     output C
+     );
+        
+     assign #1 C = a|b;
+endmodule
+     
+// AND gate Module with 3 inputs 
+module and_gate_3(
+     input a,
+     input b,
+     input c,
+     output D
+     );
+        
+     assign #1 D = a & b & c;  
+endmodule  
+
+// OR gate Module with 2 inputs
+module or_gate_3(
+     input a,
+     input b,
+     input c,
+     output D
+     );
+        
+     assign #1 D = a | b | c;     
+endmodule  
+  
+// 2-bit look-ahead module
+module two_bit_look_ahead
+(
+  input A0, A1, B0, B1,
+  input C_in,
+  output Sum_0, Sum_1,
+  output C_out
+ );
+ 
+ wire w1, w2, w3, w4, w5, w6, w7, w8, w9, w10, w11;
+   
+   
+   // internal logic of 2-bit look-ahead
+   xor_gate P0 (A0, B0, w1);
+   xor_gate P1 (A1, B1, w5);
+   and_gate_3 AND_1 (w1, w5, C_in, w9);
+   and_gate AND_TWO (A0, B0, w3);
+   and_gate AND_THREE (w5, w3, w6);
+   and_gate G1 (A1, B1, w7);
+   or_gate_3 OR_ONE (w7, w9, w6, C_out);
+   and_gate AND_FOUR (C_in, w1, w10);
+   or_gate C1 (w3, w10, w11); 
+   xor_gate S0 (C_in, w1, Sum_0);
+   xor_gate S1 (w11,w5, Sum_1);
+endmodule
+
+// 64-bit carry look-ahead adder with 2-bit look-ahead module
+module look_ahead_64bit
+  (
+    input [63:0] A, B,
+    output [63:0] Sum,
+    output Carry
+  );
+
+    wire [32:0] w;
+    
+// assigns first carry as 0
+    assign C_in = 1'b0;
+
+// instantiate 2-bit look-ahead adder 32 times
+    two_bit_look_ahead a1(A[0], A[1], B[0], B[1], C_in, Sum[0], Sum[1], w[0]);
+    two_bit_look_ahead a2(A[2], A[3], B[2], B[3], w[0], Sum[2], Sum[3], w[1]);
+    two_bit_look_ahead a3(A[4], A[5], B[4], B[5], w[1], Sum[4], Sum[5], w[2]);
+    two_bit_look_ahead a4(A[6], A[7], B[6], B[7], w[2], Sum[6], Sum[7], w[3]);
+    two_bit_look_ahead a5(A[8], A[9], B[8], B[9], w[3], Sum[8], Sum[9], w[4]);
+    two_bit_look_ahead a6(A[10], A[11], B[10], B[11], w[4], Sum[10], Sum[11], w[5]);
+    two_bit_look_ahead a7(A[12], A[13], B[12], B[13], w[5], Sum[12], Sum[13], w[6]);
+    two_bit_look_ahead a8(A[14], A[15], B[14], B[15], w[6], Sum[14], Sum[15], w[7]);
+    two_bit_look_ahead a9(A[16], A[17], B[16], B[17], w[7], Sum[16], Sum[17], w[8]);
+    two_bit_look_ahead a10(A[18], A[19], B[18], B[19], w[8], Sum[18], Sum[19], w[9]);
+    two_bit_look_ahead a11(A[20], A[21], B[20], B[21], w[9], Sum[20], Sum[21], w[10]);
+    two_bit_look_ahead a12(A[22], A[23], B[22], B[23], w[10], Sum[22], Sum[23], w[11]);
+    two_bit_look_ahead a13(A[24], A[25], B[24], B[25], w[11], Sum[24], Sum[25], w[12]);
+    two_bit_look_ahead a14(A[26], A[27], B[26], B[27], w[12], Sum[26], Sum[27], w[13]);
+    two_bit_look_ahead a15(A[28], A[29], B[28], B[29], w[13], Sum[28], Sum[29], w[14]);
+    two_bit_look_ahead a16(A[30], A[31], B[30], B[31], w[14], Sum[30], Sum[31], w[15]);
+    two_bit_look_ahead a17(A[32], A[33], B[32], B[33], w[15], Sum[32], Sum[33], w[16]);
+    two_bit_look_ahead a18(A[34], A[35], B[34], B[35], w[16], Sum[34], Sum[35], w[17]);
+    two_bit_look_ahead a19(A[36], A[37], B[36], B[37], w[17], Sum[36], Sum[37], w[18]);
+    two_bit_look_ahead a20(A[38], A[39], B[38], B[39], w[18], Sum[38], Sum[39], w[19]);
+    two_bit_look_ahead a21(A[40], A[41], B[40], B[41], w[19], Sum[40], Sum[41], w[20]);
+    two_bit_look_ahead a22(A[42], A[43], B[42], B[43], w[20], Sum[42], Sum[43], w[21]);
+    two_bit_look_ahead a23(A[44], A[45], B[44], B[45], w[21], Sum[44], Sum[45], w[22]);
+    two_bit_look_ahead a24(A[46], A[47], B[46], B[47], w[22], Sum[46], Sum[47], w[23]);
+    two_bit_look_ahead a25(A[48], A[49], B[48], B[49], w[23], Sum[48], Sum[49], w[24]);
+    two_bit_look_ahead a26(A[50], A[51], B[50], B[51], w[24], Sum[50], Sum[51], w[25]);
+    two_bit_look_ahead a27(A[52], A[53], B[52], B[53], w[25], Sum[52], Sum[53], w[26]);
+    two_bit_look_ahead a28(A[54], A[55], B[54], B[55], w[26], Sum[54], Sum[55], w[27]);
+    two_bit_look_ahead a29(A[56], A[57], B[56], B[57], w[27], Sum[56], Sum[57], w[28]);
+    two_bit_look_ahead a30(A[58], A[59], B[58], B[59], w[28], Sum[58], Sum[59], w[29]);
+    two_bit_look_ahead a31(A[60], A[61], B[60], B[61], w[29], Sum[60], Sum[61], w[30]);
+    two_bit_look_ahead a32(A[62], A[63], B[62], B[63], w[30], Sum[62], Sum[63], Carry);
+
+endmodule
+

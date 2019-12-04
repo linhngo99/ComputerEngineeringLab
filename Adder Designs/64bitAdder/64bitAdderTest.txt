@@ -1,0 +1,37 @@
+`timescale 1ns / 1ps
+
+// Test bench for behavioral model for 64 bit adder
+module tb_behavioral_adder;
+
+// Inputs
+  reg [63:0] a;
+  reg [63:0] b;
+
+// Output
+  wire [64:0] C;
+
+// Instantiate Unit Test  
+  behavioral_adder U1
+  (
+    .a(a),
+    .b(b),
+    .C(C)
+  );
+
+  initial begin
+  
+// Set values for a & b
+    a = 64'b0000000000000000000000000000000111110000000000000000000000000010;
+    b = 64'b0000000000000000000011110000000000000000000000000000000000000001;
+    #25
+          
+    a = 64'b1001100011000000001100000000001100000001100000000111100000000010;
+    b = 64'b1000011000110000000000000000000011100001100000000000000000000001;
+    
+  end
+  
+endmodule
+
+
+
+

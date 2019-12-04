@@ -1,0 +1,132 @@
+`timescale 1ns / 1ps
+
+// XOR gate Module with 2 inputs
+module xor_gate(
+    input a,
+    input b,
+    output C
+    );
+    
+    assign #1 C = (a^b);
+endmodule
+
+// AND gate Module with 2 inputs
+module and_gate(
+    input a,
+    input b,
+    output C
+    );
+    
+    assign #1 C = a & b;
+endmodule
+
+// OR gate Module with 2 inputs
+module or_gate(
+    input a,
+    input b,
+    output C
+    );
+    
+    Assign #1 C = a|b;
+endmodule
+
+// 1-bit Full adder
+module full_adder(
+    input a,
+    input b,
+    input C_in,
+    output C_out,
+    output S
+    );
+    
+    wire w1, w2, w3, w4;
+    
+// internal logic of 1-bit full adder
+    xor_gate u1 (a, b, w1);
+    and_gate u2 (w1, C_in, w2);
+    and_gate u3 (a, b, w3);
+    xor_gate u4 (w1, C_in, S);
+    Or_gate  u5 (w2, w3, C_out);
+    
+endmodule
+
+// 64-bit ripple carry adder
+module ripple_adder_64bit (
+    input [63:0] a, b,
+    output [63:0] S,
+    output C_out
+    );
+    
+    wire [63:0] w;
+    
+// Sets first carry as 0
+    assign C_in = 1'b0;
+    
+// instantiate 1-bit full adder 64 times
+// where C_in of next adder is C_out of the previous
+    full_adder a1 (a[0], b[0], C_in, w[0] , S[0]);
+    full_adder a2 (a[1], b[1], w[0], w[1], S[1]);
+    full_adder a3 (a[2], b[2], w[1], w[2], S[2]);
+    full_adder a4 (a[3], b[3], w[2], w[3], S[3]);
+    full_adder a5 (a[4], b[4], w[3], w[4], S[4]);
+    full_adder a6 (a[5], b[5], w[4], w[5], S[5]);
+    full_adder a7 (a[6], b[6], w[5], w[6], S[6]);
+    full_adder a8 (a[7], b[7], w[6], w[7], S[7]);
+    full_adder a9 (a[8], b[8], w[7], w[8], S[8]);
+    full_adder a10 (a[9], b[9], w[8], w[9], S[9]);
+    full_adder a11 (a[10], b[10], w[9], w[10], S[10]);
+    full_adder a12 (a[11], b[11], w[10], w[11], S[11]);
+    full_adder a13 (a[12], b[12], w[11], w[12], S[12]);
+    full_adder a14 (a[13], b[13], w[12], w[13], S[13]);
+    full_adder a15 (a[14], b[14], w[13], w[14], S[14]);
+    full_adder a16 (a[15], b[15], w[14], w[15], S[15]);
+    full_adder a17 (a[16], b[16], w[15], w[16], S[16]);
+    full_adder a18 (a[17], b[17], w[16], w[17], S[17]);
+    full_adder a19 (a[18], b[18], w[17], w[18], S[18]);
+    full_adder a20 (a[19], b[19], w[18], w[19], S[19]);
+    full_adder a21 (a[20], b[20], w[19], w[20], S[20]);
+    full_adder a22 (a[21], b[21], w[20], w[21], S[21]);
+    full_adder a23 (a[22], b[22], w[21], w[22], S[22]);
+    full_adder a24 (a[23], b[23], w[22], w[23], S[23]);
+    full_adder a25 (a[24], b[24], w[23], w[24], S[24]);
+    full_adder a26 (a[25], b[25], w[24], w[25], S[25]);
+    full_adder a27 (a[26], b[26], w[25], w[26], S[26]);
+    full_adder a28 (a[27], b[27], w[26], w[27], S[27]);
+    full_adder a29 (a[28], b[28], w[27], w[28], S[28]);
+    full_adder a30 (a[29], b[29], w[28], w[29], S[29]);
+    full_adder a31 (a[30], b[30], w[29], w[30], S[30]);
+    full_adder a32 (a[31], b[31], w[30], w[31], S[31]);
+    full_adder a33 (a[32], b[32], w[31], w[32], S[32]);
+    full_adder a34 (a[33], b[33], w[32], w[33], S[33]);
+    full_adder a35 (a[34], b[34], w[33], w[34], S[34]);
+    full_adder a36 (a[35], b[35], w[34], w[35], S[35]);
+    full_adder a37 (a[36], b[36], w[35], w[36], S[36]);
+    full_adder a38 (a[37], b[37], w[36], w[37], S[37]);
+    full_adder a39 (a[38], b[38], w[37], w[38], S[38]);
+    full_adder a40 (a[39], b[39], w[38], w[39], S[39]);
+    full_adder a41 (a[40], b[40], w[39], w[40], S[40]);
+    full_adder a42 (a[41], b[41], w[40], w[41], S[41]);
+    full_adder a43 (a[42], b[42], w[41], w[42], S[42]);
+    full_adder a44 (a[43], b[43], w[42], w[43], S[43]);
+    full_adder a45 (a[44], b[44], w[43], w[44], S[44]);
+    full_adder a46 (a[45], b[45], w[44], w[45], S[45]);
+    full_adder a47 (a[46], b[46], w[45], w[46], S[46]);
+    full_adder a48 (a[47], b[47], w[46], w[47], S[47]);
+    full_adder a49 (a[48], b[48], w[47], w[48], S[48]);
+    full_adder a50 (a[49], b[49], w[48], w[49], S[49]);
+    full_adder a51 (a[50], b[50], w[49], w[50], S[50]);
+    full_adder a52 (a[51], b[51], w[50], w[51], S[51]);
+    full_adder a53 (a[52], b[52], w[51], w[52], S[52]);
+    full_adder a54 (a[53], b[53], w[52], w[53], S[53]);
+    full_adder a55 (a[54], b[54], w[53], w[54], S[54]);
+    full_adder a56 (a[55], b[55], w[54], w[55], S[55]);
+    full_adder a57 (a[56], b[56], w[55], w[56], S[56]);
+    full_adder a58 (a[57], b[57], w[56], w[57], S[57]);
+    full_adder a59 (a[58], b[58], w[57], w[58], S[58]);
+    full_adder a60 (a[59], b[59], w[58], w[59], S[59]);
+    full_adder a61 (a[60], b[60], w[59], w[60], S[60]);
+    full_adder a62 (a[61], b[61], w[60], w[61], S[61]);
+    full_adder a63 (a[62], b[62], w[61], w[62], S[62]);
+    full_adder a64 (a[63], b[63], w[62], C_out, S[63]);
+
+endmodule

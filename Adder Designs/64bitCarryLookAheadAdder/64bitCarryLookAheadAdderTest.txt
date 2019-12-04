@@ -1,0 +1,39 @@
+`timescale 1ns / 1ps
+
+// Test bench for 64-bit carry look-ahead adder with 2-bit look-ahead
+module tb_2_bit_look_ahead(
+    );
+    
+// Inputs
+    reg [63:0] A;
+    reg [63:0] B;
+        
+// Outputs
+    wire Carry;
+    wire [63:0] Sum;
+    
+// Instantiate Unit Test  
+    look_ahead_64bit U1
+    (
+       .A (A),
+       .B (B),
+       .Sum (Sum),
+       .Carry (Carry)
+     );
+
+
+    initial begin
+
+// Set values for A & B
+        A = 64'b0000000000000000000000000000000111110000000000000000000000000010;
+        B = 64'b0000000000000000000011110000000000000000000000000000000000000001;
+        #25
+                  
+        A = 64'b1001100011000000001100000000001100000001100000000111100000000010;
+        B = 64'b1000011000110000000000000000000011100001100000000000000000000001;
+    end
+
+endmodule
+
+
+
