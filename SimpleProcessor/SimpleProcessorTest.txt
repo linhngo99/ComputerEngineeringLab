@@ -1,0 +1,49 @@
+`timescale 1ns / 1ps
+module procssor_tb;
+// Inputs
+    reg CLK=0;
+    reg reset=1;
+    reg [15:0] RD;
+    wire [11:0]A;
+    wire [15:0] WD;
+    wire RWn;
+    reg [15:0] memory[0:18];
+
+    initial begin
+        $readmemh("C:/Users/ngol1.LIONS.006/Desktop/memory.dat", memory);
+    end
+    
+
+    // Instantiate the Unit Under Test (UUT)
+    simpleCPU uut (
+    .CLK(CLK),
+    .reset(reset),
+    .RD(RD),
+    .WD(WD),
+    .A(A),
+    .RWn(RWn)
+    );
+
+
+    initial begin
+        reset <= 1;
+        #1 reset <=0;
+    end
+    
+    always begin
+        #2 CLK = ~CLK;
+    end
+    
+    always @* begin
+        if (RWn == 1'b0) begin
+            memory[A] = WD;
+        end 
+        else begin 
+            if (RWn == 1'b1) 
+                RD = memory[A];
+        end
+    end
+    
+    initial #250 $finish;
+
+endmodule

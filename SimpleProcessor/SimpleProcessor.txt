@@ -1,0 +1,489 @@
+`timescale 1ns / 1ps
+module alu(
+    input wire [15:0]a,b,
+    input wire [2:0]control,
+    input wire ci,
+    output reg [15:0]y,
+    output reg co
+    );
+       
+        
+    always @(*) begin
+        case(control)
+            3'b000: y =~a;  //NOTa = Not the Accumulator(Invert it)
+            3'b001: {co,y} <= a+b+ci;//Add to input with carry
+            3'b010: y = (a + 1); //Increment the Accumulator
+            3'b011: y = 0; //Zeroing the Accumulator (Clearing accumulator)
+            3'b100: y = b; //Passing B (Used in loading accumulator)
+        endcase
+    end 
+endmodule
+
+
+/***********************************************************************************************/
+module controller(
+    input [3:0]opcode,
+    input pos, //most significant bit
+    input clk, reset,
+    //input am,
+    
+    output reg IR_enable, MD_enable, MA_enable, PC_enable, AC_enable, C_enable,
+    output reg MUX1, MUX3,
+    output reg [2:0] ALU_control,
+    output reg [1:0] MUX2,
+    output reg RWn
+);
+
+reg [4:0] present_state, next_state;
+
+    parameter S00 = 5'h00, S01 = 5'h01, S02 = 5'h02, S03 = 5'h03,S04 = 5'h04, 
+    S05 = 5'h05, S06 = 5'h06, S07 = 5'h07, S08 = 5'h08,S09 = 5'h09, S10 = 5'h0A, 
+    S11 = 5'h0B, S12 = 5'h0C, S13 = 5'h0D,S14 = 5'h0E, S15 = 5'h0F, S16 = 5'h10;
+    
+    initial begin
+        present_state=S00;
+    end
+    
+    always@(negedge clk or posedge reset) begin
+        if (reset == 1'b1) begin
+            present_state=S00;
+        end
+        else begin
+            present_state = next_state;
+        end
+    end
+    
+    
+    always @(present_state) begin
+        case(present_state)
+            
+            S00: begin
+                IR_enable = 1;
+                MD_enable = 0; 
+                MA_enable = 0;
+                PC_enable = 0;
+                AC_enable = 0;
+                C_enable= 0;
+                MUX1 = 0;
+                MUX2 = 0;
+                MUX3 = 0;
+                RWn=1;
+                next_state = S01;
+            end
+     
+       
+            S01: begin
+                IR_enable = 0;
+                MD_enable = 0; 
+                MA_enable = 0;
+                PC_enable = 1;
+                AC_enable = 0;
+                C_enable= 0;
+                MUX1 = 0;
+                MUX2 = 0;
+                MUX3 = 0;
+                RWn=1;
+        
+                if(opcode[3:1] == 3'b000) begin
+                    next_state = S02;
+                end
+                
+                else if (opcode[3:1] == 3'b011) begin
+                    next_state = S03; 
+                end
+                
+                else if (opcode[3:1] == 3'b010) begin
+                    if (pos == 0) begin
+                        if (opcode [0] == 1) begin //look at lsb of opcode 
+                          next_state = S04;
+                       end
+                   else
+                        next_state = S07;
+                end
+                else
+                        next_state = S00;
+               end
+        
+               else  
+                next_state = S08;
+               end
+            
+            S02: begin
+                IR_enable = 0;
+                MD_enable = 0; 
+                MA_enable = 0;
+                PC_enable = 0;
+                AC_enable = 1;
+                C_enable= 0;
+                MUX1 = 0;
+                MUX2 = 0;
+                MUX3 = 0;
+                RWn=1;
+                next_state = S00;
+                ALU_control[2:0]= 0;
+            end
+    
+            S03: begin
+                IR_enable = 0;
+                MD_enable = 0; 
+                MA_enable = 0;
+                PC_enable = 0;
+                AC_enable = 1;
+                C_enable= 0;
+                MUX1 = 0;
+                MUX2 = 0;
+                MUX3 = 0;
+                RWn=1;
+                next_state = S00;
+                ALU_control[2:0]= 2;
+                
+            end 
+    
+            S04: begin
+                IR_enable = 0;
+                MD_enable = 0; 
+                MA_enable = 1;
+                PC_enable = 0;
+                AC_enable = 0;
+                C_enable= 0;
+                MUX1 = 0;
+                MUX2 = 0;
+                MUX3 = 0;
+                RWn=1;
+                next_state = S05;
+            end
+    
+            S05: begin
+                IR_enable = 0;
+                MD_enable = 1; 
+                MA_enable = 0;
+                PC_enable = 0;
+                AC_enable = 0;
+                C_enable= 0;
+                MUX1 = 0;
+                MUX2 = 0;
+                MUX3 = 1;
+                RWn=1;
+                next_state = S06;
+            end
+            
+            S06: begin
+                IR_enable = 0;
+                MD_enable = 0; 
+                MA_enable = 0;
+                PC_enable = 1;
+                AC_enable = 0;
+                C_enable= 0;
+                MUX1 = 0;
+                MUX2 = 2;
+                MUX3 = 0;
+                RWn=1;
+                next_state = S00;
+            end
+    
+            S07: begin
+                IR_enable = 0;
+                MD_enable = 0; 
+                MA_enable = 0;
+                PC_enable = 1;
+                AC_enable = 0;
+                C_enable= 0;
+                MUX1 = 0;
+                MUX2 = 1;
+                MUX3 = 0;
+                RWn=1;
+                next_state = S00;
+            end
+    
+            S08: begin
+                IR_enable = 0;
+                MD_enable = 0; 
+                MA_enable = 1;
+                PC_enable = 0;
+                AC_enable = 0;
+                C_enable= 0;
+                MUX1 = 0;
+                MUX2 = 0;
+                MUX3 = 0;
+                RWn=1;
+            
+               if (opcode[3:1] == 3'b100) begin 
+                   if (opcode[0] ==1) begin
+                        next_state = S09;
+                   end
+                   else if (opcode[0] ==0) begin
+                        next_state = S11;
+                   end
+               end
+               else 
+                    next_state = S12;
+               end
+        
+            S09: begin
+                IR_enable = 0;
+                MD_enable = 1; 
+                MA_enable = 0;
+                PC_enable = 0;
+                AC_enable = 0;
+                C_enable= 0;
+                MUX1 = 0;
+                MUX2 = 0;
+                MUX3 = 1;
+                RWn=1;
+                next_state = S10;
+            end
+    
+            S10: begin
+                IR_enable = 0;
+                MD_enable = 0; 
+                MA_enable = 1;
+                PC_enable = 0;
+                AC_enable = 0;
+                C_enable= 0;
+                MUX1 = 1;
+                MUX2 = 0;
+                MUX3 = 0;
+                RWn=1;
+                next_state = S11;
+            end 
+    
+            S11: begin
+                IR_enable = 0;
+                MD_enable = 0; 
+                MA_enable = 0;
+                PC_enable = 0;
+                AC_enable = 1;
+                C_enable= 0;
+                MUX1 = 0;
+                MUX2 = 0;
+                MUX3 = 1;
+                 ALU_control[2:0]=3;
+                #3 RWn=0;
+                next_state = S00;
+            end
+    
+            S12: begin
+                IR_enable = 0;
+                MD_enable = 1; 
+                MA_enable = 0;
+                PC_enable = 0;
+                AC_enable = 0;
+                C_enable= 0;
+                MUX1 = 0;
+                MUX2 = 0;
+                MUX3 = 1;
+                RWn=1;
+            
+               if (opcode[0] == 1) begin 
+                   next_state = S13;
+               end
+               else begin
+                   if (opcode[3:1] ==3'b001) 
+                        next_state = S15;
+                   
+                   else 
+                    next_state = S16;
+               end
+               end
+               
+    
+            S13: begin
+                IR_enable = 0;
+                MD_enable = 0; 
+                MA_enable = 1;
+                PC_enable = 0;
+                AC_enable = 0;
+                C_enable= 0;
+                MUX1 = 1;
+                MUX2 = 0;
+                MUX3 = 0;
+                RWn=1;
+                next_state = S14;
+            end
+    
+            S14: begin
+                IR_enable = 0;
+                MD_enable = 1; 
+                MA_enable = 0;
+                PC_enable = 0;
+                AC_enable = 0;
+                C_enable= 0;
+                MUX1 = 0;
+                MUX2 = 0;
+                MUX3 = 1;
+                RWn=1;
+        
+               if (opcode[3:1] ==3'b001) begin
+                   next_state = S15;
+               end
+               else 
+                   next_state = S16;
+               end
+                            
+            S15: begin
+                IR_enable = 0;
+                MD_enable = 0; 
+                MA_enable = 0;
+                PC_enable = 0;
+                AC_enable = 1;
+                C_enable= 1;
+                MUX1 = 0;
+                MUX2 = 0;
+                MUX3 = 0;
+                RWn=1;
+                ALU_control[2:0]=1;
+                next_state = S00;
+            end
+    
+            S16: begin
+                IR_enable = 0;
+                MD_enable = 0; 
+                MA_enable = 0;
+                PC_enable = 0;
+                AC_enable = 1;
+                C_enable= 0;
+                MUX1 = 0;
+                MUX2 = 0;
+                MUX3 = 0;
+                RWn=1;
+                ALU_control[2:0]=4;
+                next_state = S00;
+            end
+    
+    endcase 
+    end
+
+endmodule 
+
+
+/**********************************************************************************************/
+module data_path(
+    input CLK,
+    input reset,
+   
+    input MD_enable,
+    input IR_enable, 
+    input AC_enable,
+    input PC_enable,
+    input MA_enable,
+    input C_enable,
+    
+    input [2:0]alu_control,
+    input mux1,
+    input mux3,
+    input [1:0]mux2,
+   
+    input [15:0] RD,
+
+    output reg [15:0] WD,
+    output reg [11:0] A,
+    output reg [15:0] IR
+
+);
+
+     reg [15:0] AC;
+     reg [15:0] MD;
+     reg [11:0] PC;
+     reg [11:0] MA;
+     reg C;
+     
+     wire [15:0] y; 
+     wire co;
+    
+   initial begin
+        if( reset == 1'b1) begin
+            PC[11:0] = 12'h000;
+            MA[11:0] = 12'h000;
+            MD[15:0] = 16'h0000;
+            AC[15:0] = 16'h0000;
+            IR[15:0] = 16'h0000;
+            C = 1'b0;
+            A[11:0] = 12'h000;
+         end  
+    end
+            
+        
+    always @ (posedge CLK ) begin  
+        if ( MD_enable == 1'b1 ) begin
+            #1 MD = RD;
+        end
+        else if ( IR_enable == 1'b1 ) begin
+            #1 IR = RD;
+        end
+    end   
+         
+    //Call ALU... And reassigning AC when needed    
+    alu op3 ( AC, MD, alu_control, C, y, co);
+    always @ (posedge CLK ) begin  
+        if ( AC_enable == 1'b1) begin
+            #1 AC = y;
+        end
+        if (C_enable == 1'b1 ) begin
+             C = co;
+        end
+    end
+    
+    //Mux 1 
+    always @ (posedge CLK) begin  
+        if ( mux1 == 1'b0 && MA_enable == 1) begin
+            MA = IR[11:0];
+        end
+        else if ( mux1 == 1'b1 && MA_enable == 1 ) begin
+            MA = MD[11:0];
+        end
+    end
+    
+    //Mux 2
+    always @ (posedge CLK) begin  
+        if ( mux2 == 2'b00 && PC_enable == 1) begin
+            PC = PC + 1;
+        end
+        else if ( mux2 == 2'b01 && PC_enable == 1 ) begin
+            PC = IR[11:0];
+        end
+        else if ( mux2 == 2'b10 && PC_enable == 1 ) begin
+            PC = MD[11:0];
+        end
+    end
+    
+    //Mux 3
+    always @ (posedge CLK) begin  
+        if ( mux3 == 1'b0 ) begin
+            A = PC;
+        end
+        else if ( mux3 == 1'b1 ) begin
+            A = MA;
+        end
+    end
+    
+     always @ (posedge CLK) begin
+       WD = AC;
+     end
+         
+
+endmodule
+
+/***********************************************************************************************/
+module simpleCPU(
+    input CLK, reset,
+    input [15:0] RD,
+    output [15:0] WD,
+    output RWn,
+    output [11:0] A 
+);
+
+    
+    wire mux1,mux3,IR_enable,MD_enable,AC_enable,MA_enable,PC_enable, C_enable;
+    wire [1:0] mux2;
+    wire[2:0]alu_control;
+    wire [15:0] IR;
+
+
+
+    data_path m2(  CLK, reset, MD_enable, IR_enable, AC_enable, PC_enable, MA_enable, C_enable, 
+    alu_control[2:0], mux1, mux3, mux2[1:0], RD[15:0], WD[15:0], A[11:0], IR[15:0]);
+
+    controller m3( IR[15:12], WD[15], CLK, reset, IR_enable, MD_enable, MA_enable, PC_enable, AC_enable, C_enable,
+    mux1, mux3,alu_control[2:0],mux2[1:0], RWn );
+
+endmodule
